@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Config files with secrets
+app/core/config/envs/.env
+app/core/config/envs/.env.local
+app/core/config/envs/.env.*.local
+app/core/config/yaml/local.yaml
+app/core/config/yaml/*.local.yaml
+
+# Keep example files
+!app/core/config/envs/.env.example
+!app/core/config/yaml/.yaml.example
+
+# Logs
+*.log
+logs/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+*.db
+*.sqlite
+.env
+.env.*
+!.env.example
