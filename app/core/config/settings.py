@@ -1,9 +1,10 @@
 from pathlib import Path
-from pydantic_settings import BaseSettings, SettingsConfigDict, YamlConfigSettingsSource
+
+from pydantic_settings import (BaseSettings, SettingsConfigDict,
+                               YamlConfigSettingsSource)
 
 from app.core.config.modules.app import AppConfig
 from app.core.config.modules.database import DatabaseConfig
-
 
 """Пути до папки настроек"""
 CONFIG_PATH = Path(__file__).resolve().parent
