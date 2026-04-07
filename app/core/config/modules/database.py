@@ -14,7 +14,7 @@ class DatabaseConfig(BaseModel):
     ECHO: Annotated[bool, Field(default=False, description="Enable SQLAlchemy echo")]
 
     @property
-    def db_url(self) -> URL:
+    def url(self) -> URL:
         return URL.create(
             drivername=self.DRIVER,
             username=self.USERNAME,

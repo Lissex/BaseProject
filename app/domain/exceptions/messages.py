@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 
-
 @dataclass(frozen=True)
 class UserMessages:
     """Класс для хранения сообщений об ошибках, связанных с пользователем."""

@@ -1,0 +1,5 @@
+app:
+  name: "My App"
+
+db:
+  host: localhost
