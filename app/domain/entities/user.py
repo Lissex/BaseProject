@@ -20,7 +20,7 @@ class User:
             updated_at: datetime
 
             ):
-        
+
         self._id = id
         self._identity = identity
         self._security = security
@@ -33,7 +33,7 @@ class User:
     @property
     def id(self) -> UUID:
         return self._id
-    
+
     @property
     def username(self) -> str:
         return self._identity.username.value
@@ -41,18 +41,22 @@ class User:
     @property
     def email(self) -> str:
         return self._identity.email.value
-    
+
     @property
     def phone(self) -> str:
         return self._identity.phone.value
-    
+
     @property
     def hashed_password(self) -> str:
         return self._security.hashed_password
-    
+
     @property
     def is_active(self) -> bool:
         return self._security.is_active
+
+    @property
+    def is_email_verified(self) -> bool:
+        return self._security.is_email_verified
 
     @property
     def created_at(self) -> datetime:
@@ -85,37 +89,50 @@ class User:
         )
 
     def set_password(self, hashed_password: str):
-            """Установить новый хеш пароля. Валидация на пустой пароль."""
+        """Установить новый хеш пароля. Валидация на пустой пароль."""
 
-            if not hashed_password:
-                raise ValueError("Хеш пароля не может быть пустым")
+        if not hashed_password:
+            raise ValueError("Хеш пароля не может быть пустым")
 
-            self._security = replace(self._security, hashed_password=hashed_password)
-            self._updated_at = datetime.now(timezone.utc)
+        self._security = replace(self._security, hashed_password=hashed_password)
+        self._updated_at = datetime.now(timezone.utc)
 
     def change_username(self, new_username: str):
-        """Изменить username."""
+        """
+        Изменить username.
 
-        self._identity = UserIdentity(username=new_username, email=self.email)
+        Пересобираем UserIdentity целиком (VO иммутабелен), сохраняя
+        текущие email/phone и оборачивая новое значение в Username —
+        иначе валидация формата (3-20 симв., [a-z0-9_]) не сработает.
+        """
+
+        self._identity = UserIdentity(
+            username=Username(new_username),
+            email=Email(self.email),
+            phone=PhoneNumber(self.phone),
+        )
         self._updated_at = datetime.now(timezone.utc)
 
     def change_email(self, new_email: str):
         """Изменить email и сбросить верификацию."""
 
-        self._identity = UserIdentity(username=self.username, email=new_email)
+        self._identity = UserIdentity(
+            username=Username(self.username),
+            email=Email(new_email),
+            phone=PhoneNumber(self.phone),
+        )
         self._security = replace(self._security, is_email_verified=False)
         self._updated_at = datetime.now(timezone.utc)
-
 
     def change_phone(self, new_phone: str):
         """Изменить номер телефона."""
 
-        self._identity = UserIdentity(username=self.username, email=self.email, phone=new_phone)
+        self._identity = UserIdentity(
+            username=Username(self.username),
+            email=Email(self.email),
+            phone=PhoneNumber(new_phone),
+        )
         self._updated_at = datetime.now(timezone.utc)
-
-    
-
-
 
     def verify_email(self):
         """Метод для верификации email. Меняет статус в UserSecurity."""
@@ -132,9 +149,6 @@ class User:
         self._security = replace(self._security, is_active=True)
         self._updated_at = datetime.now(timezone.utc)
 
-
-    """Метод __repr__ возвращает строковое представление объекта класса User, которое включает его идентификатор (id). 
-    Это полезно для отладки и логирования, так как позволяет легко увидеть, какой объект User был создан или используется."""
     def __repr__(self) -> str:
+        """Строковое представление объекта для отладки и логирования."""
         return f"User(id={self._id})"
-    
