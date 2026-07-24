@@ -9,7 +9,7 @@ class DatabaseConfig(BaseModel):
 
     USERNAME: Annotated[str, Field(default="postgres", description="The username")]
     PASSWORD: Annotated[SecretStr, Field(description="The password")]  # обязателен, дефолта нет — намеренно
-    DATABASE: Annotated[str, Field(default="restik_db", description="The database name")]
+    DATABASE: Annotated[str, Field(default="baseapp_db", description="The database name")]
     HOST: Annotated[str, Field(default="localhost", description="The database host")]
     PORT: Annotated[int, Field(default=5432, ge=1, le=65535, description="The database port")]
     DRIVER: Annotated[str, Field(default="postgresql+asyncpg", description="The driver")]

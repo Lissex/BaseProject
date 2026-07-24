@@ -20,7 +20,7 @@ app:
 
 db:
   USERNAME: "postgres"
-  DATABASE: "restik_db"
+  DATABASE: "baseapp_db"
   HOST: "localhost"
   PORT: 5432
   DRIVER: "postgresql+asyncpg"

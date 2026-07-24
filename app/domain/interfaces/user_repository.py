@@ -4,6 +4,7 @@ from uuid import UUID
 from app.domain.entities.user import User
 
 
+
 class UserRepository(ABC):
     """
     Абстрактный интерфейс репозитория пользователей.

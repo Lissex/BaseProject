@@ -1,5 +1,14 @@
 app:
-  name: "My App"
+  TITLE: "AppTitle"
+  HOST: "0.0.0.0"
+  PORT: 8000
+  DEBUG: true
+  LOG_LEVEL: "DEBUG"
 
 db:
-  host: localhost
+  USERNAME: "postgres"
+  DATABASE: "baseapp_db"
+  HOST: "localhost"
+  PORT: 5432
+  DRIVER: "postgresql+asyncpg"
+  ECHO: true

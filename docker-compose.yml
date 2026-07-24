@@ -1,0 +1,24 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: baseapp-postgres
+    restart: unless-stopped
+    environment:
+      # Значения соответствуют app/core/config/envs/.env.example (APP_DB__*).
+      # Это ТОЛЬКО для локальной разработки/проверки миграций —
+      # для прода эти значения не используются и не должны совпадать.
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: baseapp_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - baseapp_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d baseapp_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  baseapp_postgres_data:
