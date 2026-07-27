@@ -7,15 +7,19 @@ from app.domain.exceptions.users import InvalidEmailFormat
 
 EMAIL_REGEX = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
 
+
 @dataclass(frozen=True)
 class Email:
     value: str  # Нужно объявить поле
 
     def __post_init__(self):
-        # Валидация при создании
-        if not re.match(EMAIL_REGEX, self.value):
+        normalized = self.value.strip().lower()
+
+        if not re.match(EMAIL_REGEX, normalized):
             raise InvalidEmailFormat(self.value)
-    
+
+        object.__setattr__(self, "value", normalized)
+
     def __str__(self):
         return self.value
 

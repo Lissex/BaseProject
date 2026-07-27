@@ -12,8 +12,16 @@ dependencies = [
     "isort>=8.0.1",
     "pydantic-settings[yaml]>=2.13.1",
     "pyjwt>=2.13.0",
+    "pytest>=9.1.1",
     "ruff>=0.16.0",
     "sqlalchemy>=2.0.48",
     "tzdata>=2026.3",
     "uvicorn>=0.51.0",
+]
+
+[dependency-groups]
+dev = [
+    "factory-boy>=3.3.3",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
 ]

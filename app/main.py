@@ -5,6 +5,7 @@ from fastapi import FastAPI
 
 from app.api.exception_handlers import register_exception_handlers
 from app.api.routers.auth import router as auth_router
+from app.api.routers.users import router as users_router
 from app.core.config.settings import settings
 from app.infrastructure.database.engine import dispose_engine
 
@@ -31,6 +32,7 @@ def create_app() -> FastAPI:
     register_exception_handlers(app)
 
     app.include_router(auth_router)
+    app.include_router(users_router)
 
     return app
 

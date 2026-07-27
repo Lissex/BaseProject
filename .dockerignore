@@ -1,0 +1,18 @@
+.venv
+__pycache__
+*.pyc
+.git
+.gitignore
+.pytest_cache
+.ruff_cache
+
+# Секреты и локальные конфиги — не должны попадать в образ
+app/core/config/envs/.env.*
+app/core/config/yaml/*.yaml
+!app/core/config/envs/.env.example
+!app/core/config/yaml/.yaml.example
+
+.env
+docker-compose.yml
+README.md
+tests/
