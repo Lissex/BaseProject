@@ -1,5 +1,6 @@
 from app.domain.interfaces.unit_of_work import UnitOfWork
 from app.infrastructure.database.engine import async_session_maker
+from app.infrastructure.repositories.refresh_token_repository import SQLAlchemyRefreshTokenRepository
 from app.infrastructure.repositories.user_repository import SQLAlchemyUserRepository
 
 
@@ -26,6 +27,7 @@ class SQLAlchemyUnitOfWork(UnitOfWork):
     async def __aenter__(self) -> "SQLAlchemyUnitOfWork":
         self._session = self._session_maker()
         self.users = SQLAlchemyUserRepository(self._session)
+        self.refresh_tokens = SQLAlchemyRefreshTokenRepository(self._session)
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:

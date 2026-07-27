@@ -4,7 +4,6 @@ from uuid import UUID
 from app.domain.entities.user import User
 
 
-
 class UserRepository(ABC):
     """
     Абстрактный интерфейс репозитория пользователей.
@@ -12,6 +11,11 @@ class UserRepository(ABC):
     Контракт:
     - get_* методы возвращают User | None
     - create_user и update_user возвращают None (транзакция управляется UoW)
+    - create_user должен транслировать нарушение unique-констрейнтов БД
+      (username/email/phone) в соответствующие DomainException
+      (UsernameAlreadyExists/EmailAlreadyExists/PhoneAlreadyExists),
+      а не пропускать "сырой" IntegrityError наружу — это подстраховка
+      от гонки между проверкой уникальности в use-case и записью в БД.
     """
 
     @abstractmethod
@@ -22,6 +26,9 @@ class UserRepository(ABC):
 
     @abstractmethod
     async def get_by_email(self, email: str) -> User | None: ...
+
+    @abstractmethod
+    async def get_by_phone(self, phone: str) -> User | None: ...
 
     @abstractmethod
     async def create_user(self, user: User) -> None: ...

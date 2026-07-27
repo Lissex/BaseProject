@@ -7,10 +7,13 @@ requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.18.4",
     "asyncpg>=0.31.0",
+    "bcrypt>=5.0.0",
     "fastapi>=0.135.2",
     "isort>=8.0.1",
     "pydantic-settings[yaml]>=2.13.1",
+    "pyjwt>=2.13.0",
     "ruff>=0.16.0",
     "sqlalchemy>=2.0.48",
     "tzdata>=2026.3",
+    "uvicorn>=0.51.0",
 ]

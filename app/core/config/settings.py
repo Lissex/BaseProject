@@ -12,6 +12,7 @@ from pydantic_settings import (
 
 from app.core.config.modules.app import AppConfig
 from app.core.config.modules.database import DatabaseConfig
+from app.core.config.modules.jwt import JWTConfig
 
 
 # =========================
@@ -77,6 +78,7 @@ class Settings(BaseSettings):
 
     app: AppConfig
     db: DatabaseConfig
+    jwt: JWTConfig
 
     model_config = SettingsConfigDict(
         env_prefix="APP_",

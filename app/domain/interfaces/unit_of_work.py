@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from types import TracebackType
 
+from app.domain.interfaces.refresh_token import RefreshTokenRepository
 from app.domain.interfaces.user_repository import UserRepository
 
 
@@ -13,12 +14,13 @@ class UnitOfWork(ABC):
     commit(), либо — если этого не произошло — при выходе из блока
     (в т.ч. из-за исключения) транзакция откатывается автоматически.
 
-    Repository-атрибуты (users и т.д.) должны быть доступны только
-    внутри блока `async with` — до входа или после выхода обращение
-    к ним не гарантировано и не должно использоваться.
+    Repository-атрибуты (users, refresh_tokens и т.д.) должны быть
+    доступны только внутри блока `async with` — до входа или после
+    выхода обращение к ним не гарантировано и не должно использоваться.
     """
 
     users: UserRepository
+    refresh_tokens: RefreshTokenRepository
 
     async def __aenter__(self) -> "UnitOfWork":
         return self

@@ -13,6 +13,7 @@ from app.infrastructure.database.base import Base
 # модели (напр. app/infrastructure/database/models/order.py) добавляйте
 # импорт сюда же.
 from app.infrastructure.database.models.user import UserModel  # noqa: F401
+from app.infrastructure.database.models.refresh_token import RefreshTokenModel  # noqa: F401
 
 # Alembic Config object — доступ к значениям из alembic.ini
 config = context.config

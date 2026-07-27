@@ -47,7 +47,7 @@ app/domain/
 ├── entities/        # Сущности и агрегаты
 ├── value_objects/   # Value Objects
 ├── exceptions/      # Доменные исключения
-├── interfaces/      # Контракты (репозитории)
+├── interfaces/       # Контракты (репозитории, unit of work)
 ```
 
 ---
@@ -81,6 +81,10 @@ User
 ├── created_at
 └── updated_at
 ```
+
+Все поля агрегата доступны снаружи только через properties
+(`user.username`, `user.email`, `user.is_active`, `user.is_email_verified` и т.д.) —
+прямого доступа к `_identity`/`_security` быть не должно нигде за пределами `User`.
 
 ---
 
@@ -131,8 +135,15 @@ user.change_phone("+79991234567")
 
 📌 Правила:
 
-* email → сбрасывает верификацию
+* email → сбрасывает верификацию (`is_email_verified = False`)
 * всегда обновляется `updated_at`
+* новое значение всегда оборачивается в соответствующий VO
+  (`Username`/`Email`/`PhoneNumber`) — валидация формата отрабатывает
+  при каждом изменении, а не только при `User.create()`
+* остальные поля `identity` (username/email/phone) при изменении одного
+  из них берутся из текущего состояния (`self.username`, `self.email`,
+  `self.phone`), а не теряются — `UserIdentity` пересобирается целиком,
+  так как VO иммутабелен
 
 ---
 
@@ -192,6 +203,10 @@ email.domain
 * email
 * phone
 
+Все три поля обязательны и не имеют дефолтов — при пересборке
+(`change_username`/`change_email`/`change_phone`) нужно передавать все три,
+даже если меняется только одно.
+
 ### UserSecurity
 
 Содержит:
@@ -247,18 +262,13 @@ Domain слой:
 
 ---
 
-# 🗂️ Repository Interfaces
+# 🗂️ Interfaces
 
-## 📌 Назначение
+Домен определяет два контракта, которые реализует infrastructure-слой.
 
-Контракт между:
+## UserRepository
 
-* application layer
-* infrastructure layer
-
----
-
-## 📚 Методы
+Контракт для доступа к данным пользователя.
 
 ```python
 async def get_by_id(user_id: UUID) -> User | None
@@ -269,18 +279,40 @@ async def create_user(user: User) -> None
 async def update_user(user: User) -> None
 ```
 
----
+⚠️ Запрещено:
 
-## ⚠️ Ограничения
-
-Запрещено:
-
-* использовать ORM
+* использовать ORM-специфичные типы в сигнатурах
 * писать SQL
 * добавлять бизнес-логику
 
----
+`create_user`/`update_user` не коммитят транзакцию — это ответственность
+`UnitOfWork`.
 
+## UnitOfWork
+
+Контракт границы транзакции. Инкапсулирует набор репозиториев,
+работающих в рамках одной транзакции, и явный commit/rollback.
+
+```python
+async with uow:
+    user = await uow.users.get_by_id(user_id)
+    user.disable()
+    await uow.users.update_user(user)
+    await uow.commit()
+```
+
+Правила:
+
+* если `commit()` не вызван явно (в т.ч. из-за исключения внутри блока) —
+  при выходе из `async with` происходит автоматический `rollback()`
+* репозитории (`uow.users` и т.д.) доступны только внутри блока
+  `async with` — обращение к ним до входа или после выхода не гарантировано
+* один `UnitOfWork` = одна транзакция для всех репозиториев внутри него
+
+Реализация (`SQLAlchemyUnitOfWork` и т.п.) находится в infrastructure-слое,
+домен знает только абстрактный контракт.
+
+---
 
 # 🧪 Тестируемость
 
@@ -313,7 +345,6 @@ Domain — самый независимый слой
 
 ---
 
-
 # ⚠️ Важные замечания
 
 ## 1. Всегда используйте Value Objects
@@ -334,18 +365,30 @@ UserIdentity(
 )
 ```
 
----
-
 ## 2. Не теряйте данные при изменениях
 
 При изменении одного поля:
-→ остальные должны сохраняться
+→ остальные должны сохраняться (передавайте текущее значение через
+properties, например `self.email`, `self.phone`, а не оставляйте поле
+незаполненным)
 
----
+## 3. Не обращайтесь к приватным атрибутам снаружи
 
-## 3. Домен должен быть строгим
+❌ Неправильно (например, в мапперы или use-case):
+
+```python
+user._security.is_email_verified
+```
+
+✅ Правильно:
+
+```python
+user.is_email_verified
+```
+
+Если нужного property нет — добавьте его в `User`, а не обходите
+инкапсуляцию через `_identity`/`_security` напрямую.
+
+## 4. Домен должен быть строгим
 
 Лучше ошибка здесь, чем в базе данных
-
----
-
